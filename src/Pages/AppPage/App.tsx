@@ -1,3 +1,5 @@
+import GolCanvas from './Components/GolCanvas/GolCanvas';
+
 const AppPage = () => {
   return (
     <div className="flex flex-col h-full bg-gray-300">
@@ -7,7 +9,9 @@ const AppPage = () => {
       </div>
       <div className="flex flex-col flex-grow">
         <div className="flex justify-center items-center flex-grow w-full">
-          <div className="border-2 border-black bg-white w-3/4 h-3/4"></div>
+          <div className="border-2 border-black bg-white w-3/4 h-3/4">
+            <GolCanvas />
+          </div>
         </div>
       </div>
     </div>
