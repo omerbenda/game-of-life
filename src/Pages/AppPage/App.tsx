@@ -9,7 +9,7 @@ const AppPage = () => {
       </div>
       <div className="flex flex-col flex-grow">
         <div className="flex justify-center items-center flex-grow w-full">
-          <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4 h-3/4">
+          <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4">
             <GolCanvas />
           </div>
         </div>
