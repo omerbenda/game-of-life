@@ -3,13 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 const DEFAULT_GRID_SIZE = 10;
 const CANVAS_RESOLUTION = 500;
 
-const paintGrid = (grid: boolean[][], ctx: CanvasRenderingContext2D) => {
+const paintGrid = (grid: boolean[][], ctx: CanvasRenderingContext2D): void => {
   const cellSize = CANVAS_RESOLUTION / DEFAULT_GRID_SIZE;
 
   for (let row = 0; row < DEFAULT_GRID_SIZE; row++) {
     for (let col = 0; col < DEFAULT_GRID_SIZE; col++) {
-      const startX = row * cellSize;
-      const startY = col * cellSize;
+      const startX = col * cellSize;
+      const startY = row * cellSize;
 
       ctx.fillStyle = grid[row][col] ? 'white' : 'black';
       ctx.fillRect(startX, startY, cellSize, cellSize);
