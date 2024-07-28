@@ -1,59 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  changeGridCell,
+  createGrid,
+  paintGrid,
+} from './Utilities/GridUtilities';
+import { createNextGen } from './Utilities/GolUtilities';
 
-const DEFAULT_GRID_SIZE = 10;
+const DEFAULT_GRID_SIZE = 50;
 const CANVAS_RESOLUTION = 625;
-
-const paintGrid = (grid: boolean[][], ctx: CanvasRenderingContext2D): void => {
-  ctx.fillRect(0, 0, CANVAS_RESOLUTION, CANVAS_RESOLUTION);
-  const cellSize = CANVAS_RESOLUTION / DEFAULT_GRID_SIZE;
-
-  for (let row = 0; row < DEFAULT_GRID_SIZE; row++) {
-    for (let col = 0; col < DEFAULT_GRID_SIZE; col++) {
-      const startX = col * cellSize;
-      const startY = row * cellSize;
-
-      ctx.fillStyle = grid[row][col] ? 'white' : 'black';
-      ctx.fillRect(startX, startY, cellSize, cellSize);
-    }
-  }
-};
-
-const createGrid = (size: number): boolean[][] => {
-  const grid: boolean[][] = Array<boolean[]>();
-
-  for (let iter = 0; iter < size; iter++) {
-    grid.push(Array<boolean>(size).fill(false));
-  }
-
-  return grid;
-};
-
-const copyGrid = (grid: boolean[][]): boolean[][] => {
-  const copyGrid: boolean[][] = [];
-
-  for (let row = 0; row < grid.length; row++) {
-    const newRow: boolean[] = [];
-    copyGrid.push(newRow);
-
-    for (let col = 0; col < grid[row].length; col++) {
-      newRow.push(grid[row][col]);
-    }
-  }
-
-  return copyGrid;
-};
-
-const changeGridCell = (
-  grid: boolean[][],
-  cellX: number,
-  cellY: number,
-  value: boolean
-): boolean[][] => {
-  const newGrid: boolean[][] = copyGrid(grid);
-  newGrid[cellY][cellX] = value;
-
-  return newGrid;
-};
+const DEFAULT_GENERATION_INTERVAL = 1000;
 
 const GolCanvas = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
@@ -68,17 +23,29 @@ const GolCanvas = () => {
         const xCell = Math.floor(clickX / cellSize);
         const yCell = Math.floor(clickY / cellSize);
 
-        setGrid(changeGridCell(grid, xCell, yCell, !grid[yCell][xCell]));
+        setGrid((currGrid) =>
+          changeGridCell(currGrid, xCell, yCell, !grid[yCell][xCell])
+        );
       },
     [grid]
   );
+
+  useEffect(() => {
+    const generationTimer = setInterval(() => {
+      setGrid(createNextGen);
+    }, DEFAULT_GENERATION_INTERVAL);
+
+    return () => {
+      clearInterval(generationTimer);
+    };
+  }, []);
 
   useEffect(() => {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d');
 
       if (ctx) {
-        paintGrid(grid, ctx);
+        paintGrid(grid, ctx, canvasRef.current.width);
       }
     }
   }, [grid, canvasRef]);
