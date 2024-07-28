@@ -10,7 +10,11 @@ const DEFAULT_GRID_SIZE = 50;
 const CANVAS_RESOLUTION = 625;
 const DEFAULT_GENERATION_INTERVAL = 1000;
 
-const GolCanvas = () => {
+type GolCanvasProps = {
+  playing: boolean;
+};
+
+const GolCanvas = ({ playing }: GolCanvasProps) => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -31,16 +35,6 @@ const GolCanvas = () => {
   );
 
   useEffect(() => {
-    const generationTimer = setInterval(() => {
-      setGrid(createNextGen);
-    }, DEFAULT_GENERATION_INTERVAL);
-
-    return () => {
-      clearInterval(generationTimer);
-    };
-  }, []);
-
-  useEffect(() => {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d');
 
@@ -58,6 +52,18 @@ const GolCanvas = () => {
       currRef?.removeEventListener('click', onCanvasPressed);
     };
   }, [canvasRef, onCanvasPressed]);
+
+  useEffect(() => {
+    if (playing) {
+      const generationTimer = setInterval(() => {
+        setGrid(createNextGen);
+      }, DEFAULT_GENERATION_INTERVAL);
+
+      return () => {
+        clearInterval(generationTimer);
+      };
+    }
+  }, [playing]);
 
   return (
     <canvas
