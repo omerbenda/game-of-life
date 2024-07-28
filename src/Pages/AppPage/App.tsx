@@ -45,12 +45,18 @@ const AppPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex justify-center items-center h-32">
+      <div className="flex justify-center items-center h-32 gap-5">
         <button
           onClick={() => setPlaying((curr) => !curr)}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
           {playing ? 'Stop' : 'Play'}
+        </button>
+        <button
+          onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
+        >
+          Reset
         </button>
       </div>
     </div>
