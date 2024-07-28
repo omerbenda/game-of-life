@@ -1,38 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  changeGridCell,
-  createGrid,
-  paintGrid,
-} from './Utilities/GridUtilities';
-import { createNextGen } from './Utilities/GolUtilities';
+import { useEffect, useRef } from 'react';
+import { paintGrid } from './Utilities/GridUtilities';
 
-const DEFAULT_GRID_SIZE = 50;
 const CANVAS_RESOLUTION = 625;
-const DEFAULT_GENERATION_INTERVAL = 1000;
 
 type GolCanvasProps = {
-  playing: boolean;
+  grid: boolean[][];
+  onCellClicked: (xCell: number, yCell: number) => void;
 };
 
-const GolCanvas = ({ playing }: GolCanvasProps) => {
-  const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
+const GolCanvas = ({ grid, onCellClicked }: GolCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const onCanvasPressed = useMemo(
-    () =>
-      (e: MouseEvent): void => {
-        const cellSize = CANVAS_RESOLUTION / DEFAULT_GRID_SIZE;
-        const clickX = e.pageX - (canvasRef.current?.offsetLeft || 0);
-        const clickY = e.pageY - (canvasRef.current?.offsetTop || 0);
-        const xCell = Math.floor(clickX / cellSize);
-        const yCell = Math.floor(clickY / cellSize);
+  const onCanvasClicked = (e: MouseEvent): void => {
+    const cellSize = (e.target as HTMLCanvasElement).width / grid.length;
+    const clickX = e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
+    const clickY = e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
+    const xCell = Math.floor(clickX / cellSize);
+    const yCell = Math.floor(clickY / cellSize);
 
-        setGrid((currGrid) =>
-          changeGridCell(currGrid, xCell, yCell, !grid[yCell][xCell])
-        );
-      },
-    [grid]
-  );
+    onCellClicked(xCell, yCell);
+  }
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -46,24 +33,12 @@ const GolCanvas = ({ playing }: GolCanvasProps) => {
 
   useEffect(() => {
     const currRef = canvasRef.current;
-    currRef?.addEventListener('click', onCanvasPressed);
+    currRef?.addEventListener('click', onCanvasClicked);
 
     return () => {
-      currRef?.removeEventListener('click', onCanvasPressed);
+      currRef?.removeEventListener('click', onCanvasClicked);
     };
-  }, [canvasRef, onCanvasPressed]);
-
-  useEffect(() => {
-    if (playing) {
-      const generationTimer = setInterval(() => {
-        setGrid(createNextGen);
-      }, DEFAULT_GENERATION_INTERVAL);
-
-      return () => {
-        clearInterval(generationTimer);
-      };
-    }
-  }, [playing]);
+  }, [canvasRef, onCanvasClicked]);
 
   return (
     <canvas
