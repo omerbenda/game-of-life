@@ -3,8 +3,8 @@ import GolCanvas from './Components/GolCanvas/GolCanvas';
 import { changeGridCell, createGrid } from './Components/GolCanvas/Utilities/GridUtilities';
 import { createNextGen } from './Components/GolCanvas/Utilities/GolUtilities';
 
-const DEFAULT_GRID_SIZE = 25;
-const DEFAULT_GENERATION_INTERVAL = 1000;
+const DEFAULT_GRID_SIZE = 75;
+const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
@@ -47,16 +47,16 @@ const AppPage = () => {
       </div>
       <div className="flex justify-center items-center h-32 gap-5">
         <button
-          onClick={() => setPlaying((curr) => !curr)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
-        >
-          {playing ? 'Stop' : 'Play'}
-        </button>
-        <button
           onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
           Reset
+        </button>
+        <button
+          onClick={() => setPlaying((curr) => !curr)}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
+        >
+          {playing ? 'Stop' : 'Play'}
         </button>
       </div>
     </div>
