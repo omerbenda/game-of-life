@@ -4,12 +4,12 @@ import { changeGridCell, createGrid } from './Utilities/GridUtilities';
 import { createNextGen } from './Utilities/GolUtilities';
 import Position from './Types/Position';
 
-const DEFAULT_GRID_SIZE = 100;
+const DEFAULT_GRID_SIZE = 10;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [position, setPosition] = useState<Position>({ x: -1, y: -3 });
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(

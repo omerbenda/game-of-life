@@ -24,9 +24,16 @@ const GridCanvas = ({ grid, position, onCellClicked }: GolCanvasProps) => {
         const xCell = Math.floor(clickX / CELL_SIZE) + position.x;
         const yCell = Math.floor(clickY / CELL_SIZE) + position.y;
 
-        onCellClicked(xCell, yCell);
+        if (
+          xCell < grid.length &&
+          xCell >= 0 &&
+          yCell < grid[0]?.length &&
+          yCell >= 0
+        ) {
+          onCellClicked(xCell, yCell);
+        }
       },
-    [position, onCellClicked]
+    [grid, position, onCellClicked]
   );
 
   useEffect(() => {

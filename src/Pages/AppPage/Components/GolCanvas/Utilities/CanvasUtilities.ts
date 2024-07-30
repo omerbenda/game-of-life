@@ -7,13 +7,18 @@ export const paintGrid = (
   cellSize: number,
   position: Position
 ): void => {
+  ctx.fillStyle = 'rgb(0, 3, 69)';
   ctx.fillRect(0, 0, canvasResolution, canvasResolution);
   const cellsInRes = canvasResolution / cellSize;
 
-  for (let row = position.x; row < cellsInRes && row < grid.length; row++) {
+  for (
+    let row = Math.max(position.y, 0);
+    row < cellsInRes + position.y && row < grid.length;
+    row++
+  ) {
     for (
-      let col = position.y;
-      col < cellsInRes && col < grid[row].length;
+      let col = Math.max(position.x, 0);
+      col < cellsInRes + position.x && col < grid[row].length;
       col++
     ) {
       const startX = (col - position.x) * cellSize;
