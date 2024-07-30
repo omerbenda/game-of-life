@@ -6,7 +6,7 @@ import {
 } from './Components/GolCanvas/Utilities/GridUtilities';
 import { createNextGen } from './Components/GolCanvas/Utilities/GolUtilities';
 
-const DEFAULT_GRID_SIZE = 75;
+const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
@@ -44,7 +44,11 @@ const AppPage = () => {
       <div className="flex flex-col flex-grow">
         <div className="flex justify-center items-center flex-grow w-full">
           <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4">
-            <GridCanvas grid={grid} onCellClicked={onCellClicked} />
+            <GridCanvas
+              grid={grid}
+              onCellClicked={onCellClicked}
+              position={{ x: 1, y: 1 }}
+            />
           </div>
         </div>
       </div>
