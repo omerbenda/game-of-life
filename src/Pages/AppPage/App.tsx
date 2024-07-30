@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import GridCanvas from './Components/GolCanvas/GridCanvas';
-import {
-  changeGridCell,
-  createGrid,
-} from './Components/GolCanvas/Utilities/GridUtilities';
-import { createNextGen } from './Components/GolCanvas/Utilities/GolUtilities';
+import { changeGridCell, createGrid } from './Utilities/GridUtilities';
+import { createNextGen } from './Utilities/GolUtilities';
 
 const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { paintGrid } from './Utilities/GridUtilities';
-import Position from './Types/Position';
+import { paintGrid } from './Utilities/CanvasUtilities';
+import Position from '../../Types/Position';
 
 const CANVAS_RESOLUTION = 625;
 const CELL_SIZE = 25;
