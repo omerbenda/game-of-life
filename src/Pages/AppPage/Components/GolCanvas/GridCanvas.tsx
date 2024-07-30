@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { paintGrid } from './Utilities/GridUtilities';
 
 const CANVAS_RESOLUTION = 625;
@@ -8,18 +8,24 @@ type GolCanvasProps = {
   onCellClicked: (xCell: number, yCell: number) => void;
 };
 
-const GolCanvas = ({ grid, onCellClicked }: GolCanvasProps) => {
+const GridCanvas = ({ grid, onCellClicked }: GolCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const onCanvasClicked = (e: MouseEvent): void => {
-    const cellSize = (e.target as HTMLCanvasElement).width / grid.length;
-    const clickX = e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
-    const clickY = e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
-    const xCell = Math.floor(clickX / cellSize);
-    const yCell = Math.floor(clickY / cellSize);
+  const onCanvasClicked = useMemo(
+    () =>
+      (e: MouseEvent): void => {
+        const cellSize = (e.target as HTMLCanvasElement).width / grid.length;
+        const clickX =
+          e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
+        const clickY =
+          e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
+        const xCell = Math.floor(clickX / cellSize);
+        const yCell = Math.floor(clickY / cellSize);
 
-    onCellClicked(xCell, yCell);
-  }
+        onCellClicked(xCell, yCell);
+      },
+    [grid.length, onCellClicked]
+  );
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -50,4 +56,4 @@ const GolCanvas = ({ grid, onCellClicked }: GolCanvasProps) => {
   );
 };
 
-export default GolCanvas;
+export default GridCanvas;

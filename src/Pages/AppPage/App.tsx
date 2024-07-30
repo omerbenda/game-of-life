@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import GolCanvas from './Components/GolCanvas/GolCanvas';
-import { changeGridCell, createGrid } from './Components/GolCanvas/Utilities/GridUtilities';
+import GridCanvas from './Components/GolCanvas/GridCanvas';
+import {
+  changeGridCell,
+  createGrid,
+} from './Components/GolCanvas/Utilities/GridUtilities';
 import { createNextGen } from './Components/GolCanvas/Utilities/GolUtilities';
 
 const DEFAULT_GRID_SIZE = 75;
@@ -41,7 +44,7 @@ const AppPage = () => {
       <div className="flex flex-col flex-grow">
         <div className="flex justify-center items-center flex-grow w-full">
           <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4">
-            <GolCanvas grid={grid} onCellClicked={onCellClicked} />
+            <GridCanvas grid={grid} onCellClicked={onCellClicked} />
           </div>
         </div>
       </div>
