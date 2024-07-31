@@ -14,9 +14,14 @@ const AppPage = () => {
 
   const onCellClicked = useMemo(
     () =>
-      (xCell: number, yCell: number): void => {
+      (cellPos: Vector2D): void => {
         setGrid((currGrid) =>
-          changeGridCell(currGrid, xCell, yCell, !grid[yCell][xCell])
+          changeGridCell(
+            currGrid,
+            cellPos.x,
+            cellPos.y,
+            !grid[cellPos.y][cellPos.x]
+          )
         );
       },
     [grid]

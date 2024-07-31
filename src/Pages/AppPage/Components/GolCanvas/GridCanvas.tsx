@@ -9,7 +9,7 @@ const DRAG_BUTTON = 2;
 type GolCanvasProps = {
   grid: boolean[][];
   position: Vector2D;
-  onCellClicked: (xCell: number, yCell: number) => void;
+  onCellClicked: (cellPos: Vector2D) => void;
   onPosDrag: (newPosition: Vector2D) => void;
 };
 
@@ -39,7 +39,7 @@ const GridCanvas = ({
           yCell < grid[0]?.length &&
           yCell >= 0
         ) {
-          onCellClicked(xCell, yCell);
+          onCellClicked({ x: xCell, y: yCell });
         }
       },
     [grid, position, onCellClicked]
