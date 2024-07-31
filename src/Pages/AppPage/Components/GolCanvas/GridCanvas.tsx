@@ -4,15 +4,24 @@ import Position from '../../Types/Position';
 
 const CANVAS_RESOLUTION = 625;
 const CELL_SIZE = 25;
+const DRAG_BUTTON = 2;
 
 type GolCanvasProps = {
   grid: boolean[][];
   position: Position;
   onCellClicked: (xCell: number, yCell: number) => void;
+  onPosDrag: (newPosition: Position) => void;
 };
 
-const GridCanvas = ({ grid, position, onCellClicked }: GolCanvasProps) => {
+const GridCanvas = ({
+  grid,
+  position,
+  onCellClicked,
+  onPosDrag,
+}: GolCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDragging = useRef<boolean>(false);
+  const dragStart = useRef<Position>({ x: 0, y: 0 });
 
   const onCanvasClicked = useMemo(
     () =>
@@ -36,6 +45,50 @@ const GridCanvas = ({ grid, position, onCellClicked }: GolCanvasProps) => {
     [grid, position, onCellClicked]
   );
 
+  const onMouseDown = useMemo(
+    () =>
+      (e: MouseEvent): void => {
+        if (e.button === DRAG_BUTTON && canvasRef.current) {
+          dragStart.current = {
+            x:
+              e.clientX - canvasRef.current.offsetLeft + position.x * CELL_SIZE,
+            y: e.clientY - canvasRef.current.offsetTop + position.y * CELL_SIZE,
+          };
+
+          isDragging.current = true;
+        }
+      },
+    [position]
+  );
+
+  const onMouseMove = useMemo(
+    () =>
+      (e: MouseEvent): void => {
+        if (isDragging.current && canvasRef.current) {
+          const xCanvas = e.clientX - canvasRef.current.offsetLeft;
+          const yCanvas = e.clientY - canvasRef.current.offsetTop;
+          const xDiff = (dragStart.current.x - xCanvas) / CELL_SIZE;
+          const yDiff = (dragStart.current.y - yCanvas) / CELL_SIZE;
+
+          onPosDrag({
+            x: Math.floor(xDiff),
+            y: Math.floor(yDiff),
+          });
+        }
+      },
+    [onPosDrag]
+  );
+
+  const onMouseUp = useMemo(
+    () =>
+      (e: MouseEvent): void => {
+        if (e.button === DRAG_BUTTON) {
+          isDragging.current = false;
+        }
+      },
+    []
+  );
+
   useEffect(() => {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d');
@@ -49,17 +102,24 @@ const GridCanvas = ({ grid, position, onCellClicked }: GolCanvasProps) => {
   useEffect(() => {
     const currRef = canvasRef.current;
     currRef?.addEventListener('click', onCanvasClicked);
+    currRef?.addEventListener('mousedown', onMouseDown);
+    currRef?.addEventListener('mousemove', onMouseMove);
+    currRef?.addEventListener('mouseup', onMouseUp);
 
     return () => {
       currRef?.removeEventListener('click', onCanvasClicked);
+      currRef?.removeEventListener('mousedown', onMouseDown);
+      currRef?.removeEventListener('mousemove', onMouseMove);
+      currRef?.removeEventListener('mouseup', onMouseUp);
     };
-  }, [canvasRef, onCanvasClicked]);
+  }, [canvasRef, onCanvasClicked, onMouseDown, onMouseMove, onMouseUp]);
 
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_RESOLUTION}
       height={CANVAS_RESOLUTION}
+      onContextMenu={(e) => e.preventDefault()}
       className="[image-rendering:pixelated] aspect-square"
     />
   );

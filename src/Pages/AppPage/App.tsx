@@ -9,7 +9,7 @@ const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
-  const [position, setPosition] = useState<Position>({ x: -1, y: -3 });
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(
@@ -45,8 +45,9 @@ const AppPage = () => {
           <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4">
             <GridCanvas
               grid={grid}
-              onCellClicked={onCellClicked}
               position={position}
+              onCellClicked={onCellClicked}
+              onPosDrag={setPosition}
             />
           </div>
         </div>
