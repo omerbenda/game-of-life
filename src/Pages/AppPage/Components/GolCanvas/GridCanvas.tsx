@@ -3,35 +3,43 @@ import { paintGrid, paintGridLines } from './Utilities/CanvasUtilities';
 import Vector2D from '../../Types/Vector2D';
 
 const CANVAS_RESOLUTION = 625;
-const CELL_SIZE = 25;
+const DEFAULT_CELL_SIZE = 15;
 const DRAG_BUTTON = 2;
+const ZOOM_PER_WHEEL = 1;
 
 type GolCanvasProps = {
   grid: boolean[][];
   position: Vector2D;
+  zoom: number;
   onCellClicked: (cellPos: Vector2D) => void;
   onPosDrag: (newPosition: Vector2D) => void;
+  onZoom: (zoomValue: number) => void;
 };
 
 const GridCanvas = ({
   grid,
   position,
+  zoom,
   onCellClicked,
   onPosDrag,
+  onZoom,
 }: GolCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDragging = useRef<boolean>(false);
   const dragStart = useRef<Vector2D>({ x: 0, y: 0 });
 
+  //#region Mouse Events
+
   const onCanvasClicked = useMemo(
     () =>
       (e: MouseEvent): void => {
+        const cellSize = DEFAULT_CELL_SIZE * zoom;
         const clickX =
           e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
         const clickY =
           e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
-        const xCell = Math.floor(clickX / CELL_SIZE) + position.x;
-        const yCell = Math.floor(clickY / CELL_SIZE) + position.y;
+        const xCell = Math.floor(clickX / cellSize) + position.x;
+        const yCell = Math.floor(clickY / cellSize) + position.y;
 
         if (
           xCell < grid.length &&
@@ -42,33 +50,36 @@ const GridCanvas = ({
           onCellClicked({ x: xCell, y: yCell });
         }
       },
-    [grid, position, onCellClicked]
+    [grid, position, zoom, onCellClicked]
   );
 
   const onMouseDown = useMemo(
     () =>
       (e: MouseEvent): void => {
+        const cellSize = DEFAULT_CELL_SIZE * zoom;
+
         if (e.button === DRAG_BUTTON && canvasRef.current) {
           dragStart.current = {
-            x:
-              e.clientX - canvasRef.current.offsetLeft + position.x * CELL_SIZE,
-            y: e.clientY - canvasRef.current.offsetTop + position.y * CELL_SIZE,
+            x: e.clientX - canvasRef.current.offsetLeft + position.x * cellSize,
+            y: e.clientY - canvasRef.current.offsetTop + position.y * cellSize,
           };
 
           isDragging.current = true;
         }
       },
-    [position]
+    [position, zoom]
   );
 
   const onMouseMove = useMemo(
     () =>
       (e: MouseEvent): void => {
+        const cellSize = DEFAULT_CELL_SIZE * zoom;
+
         if (isDragging.current && canvasRef.current) {
           const xCanvas = e.clientX - canvasRef.current.offsetLeft;
           const yCanvas = e.clientY - canvasRef.current.offsetTop;
-          const xDiff = (dragStart.current.x - xCanvas) / CELL_SIZE;
-          const yDiff = (dragStart.current.y - yCanvas) / CELL_SIZE;
+          const xDiff = (dragStart.current.x - xCanvas) / cellSize;
+          const yDiff = (dragStart.current.y - yCanvas) / cellSize;
 
           onPosDrag({
             x: Math.floor(xDiff),
@@ -76,7 +87,7 @@ const GridCanvas = ({
           });
         }
       },
-    [onPosDrag]
+    [zoom, onPosDrag]
   );
 
   const onMouseUp = useMemo(
@@ -89,16 +100,38 @@ const GridCanvas = ({
     []
   );
 
+  const onWheel = useMemo(
+    () =>
+      (e: WheelEvent): void => {
+        e.preventDefault();
+
+        if (e.deltaY > 0) {
+          onZoom(ZOOM_PER_WHEEL);
+        } else if (e.deltaY < 0) {
+          onZoom(-ZOOM_PER_WHEEL);
+        }
+      },
+    [onZoom]
+  );
+
+  //#endregion
+
   useEffect(() => {
     if (canvasRef.current) {
       const ctx = canvasRef.current.getContext('2d');
 
       if (ctx) {
-        paintGrid(grid, ctx, canvasRef.current.width, CELL_SIZE, position);
-        paintGridLines(ctx, canvasRef.current.width, CELL_SIZE);
+        paintGrid(
+          grid,
+          ctx,
+          canvasRef.current.width,
+          DEFAULT_CELL_SIZE * zoom,
+          position
+        );
+        paintGridLines(ctx, canvasRef.current.width, DEFAULT_CELL_SIZE * zoom);
       }
     }
-  }, [grid, position, canvasRef]);
+  }, [grid, position, zoom, canvasRef]);
 
   useEffect(() => {
     const currRef = canvasRef.current;
@@ -106,14 +139,22 @@ const GridCanvas = ({
     currRef?.addEventListener('mousedown', onMouseDown);
     currRef?.addEventListener('mousemove', onMouseMove);
     currRef?.addEventListener('mouseup', onMouseUp);
+    currRef?.addEventListener('wheel', onWheel);
 
     return () => {
       currRef?.removeEventListener('click', onCanvasClicked);
       currRef?.removeEventListener('mousedown', onMouseDown);
       currRef?.removeEventListener('mousemove', onMouseMove);
-      currRef?.removeEventListener('mouseup', onMouseUp);
+      currRef?.removeEventListener('wheel', onWheel);
     };
-  }, [canvasRef, onCanvasClicked, onMouseDown, onMouseMove, onMouseUp]);
+  }, [
+    canvasRef,
+    onCanvasClicked,
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    onWheel,
+  ]);
 
   return (
     <canvas

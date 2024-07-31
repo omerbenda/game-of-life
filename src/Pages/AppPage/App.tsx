@@ -10,6 +10,7 @@ const DEFAULT_GENERATION_INTERVAL = 100;
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
   const [position, setPosition] = useState<Vector2D>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState<number>(1);
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(
@@ -25,6 +26,14 @@ const AppPage = () => {
         );
       },
     [grid]
+  );
+
+  const onZoom = useMemo(
+    () =>
+      (zoomValue: number): void => {
+        setZoom((currZoom) => Math.max(currZoom - zoomValue, 1));
+      },
+    []
   );
 
   useEffect(() => {
@@ -51,8 +60,10 @@ const AppPage = () => {
             <GridCanvas
               grid={grid}
               position={position}
+              zoom={zoom}
               onCellClicked={onCellClicked}
               onPosDrag={setPosition}
+              onZoom={onZoom}
             />
           </div>
         </div>
