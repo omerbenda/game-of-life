@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { paintGrid } from './Utilities/CanvasUtilities';
-import Position from '../../Types/Position';
+import Vector2D from '../../Types/Vector2D';
 
 const CANVAS_RESOLUTION = 625;
 const CELL_SIZE = 25;
@@ -8,9 +8,9 @@ const DRAG_BUTTON = 2;
 
 type GolCanvasProps = {
   grid: boolean[][];
-  position: Position;
+  position: Vector2D;
   onCellClicked: (xCell: number, yCell: number) => void;
-  onPosDrag: (newPosition: Position) => void;
+  onPosDrag: (newPosition: Vector2D) => void;
 };
 
 const GridCanvas = ({
@@ -21,7 +21,7 @@ const GridCanvas = ({
 }: GolCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDragging = useRef<boolean>(false);
-  const dragStart = useRef<Position>({ x: 0, y: 0 });
+  const dragStart = useRef<Vector2D>({ x: 0, y: 0 });
 
   const onCanvasClicked = useMemo(
     () =>

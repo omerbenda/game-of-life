@@ -1,11 +1,11 @@
-import Position from '../../../Types/Position';
+import Vector2D from '../../../Types/Vector2D';
 
 export const paintGrid = (
   grid: boolean[][],
   ctx: CanvasRenderingContext2D,
   canvasResolution: number,
   cellSize: number,
-  position: Position
+  position: Vector2D
 ): void => {
   ctx.fillStyle = 'rgb(0, 3, 69)';
   ctx.fillRect(0, 0, canvasResolution, canvasResolution);

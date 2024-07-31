@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import GridCanvas from './Components/GolCanvas/GridCanvas';
 import { changeGridCell, createGrid } from './Utilities/GridUtilities';
 import { createNextGen } from './Utilities/GolUtilities';
-import Position from './Types/Position';
+import Vector2D from './Types/Vector2D';
 
-const DEFAULT_GRID_SIZE = 10;
+const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [position, setPosition] = useState<Vector2D>({ x: 0, y: 0 });
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(
