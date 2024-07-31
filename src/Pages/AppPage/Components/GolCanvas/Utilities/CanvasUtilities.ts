@@ -29,3 +29,26 @@ export const paintGrid = (
     }
   }
 };
+
+export const paintGridLines = (
+  ctx: CanvasRenderingContext2D,
+  canvasResolution: number,
+  cellSize: number
+): void => {
+  ctx.strokeStyle = 'white';
+  const cellsInRes = canvasResolution / cellSize;
+
+  for (let row = 1; row < cellsInRes; row++) {
+    ctx.beginPath();
+    ctx.moveTo(0, row * cellSize);
+    ctx.lineTo(canvasResolution, row * cellSize);
+    ctx.stroke();
+  }
+
+  for (let col = 1; col < cellsInRes; col++) {
+    ctx.beginPath();
+    ctx.moveTo(col * cellSize, 0);
+    ctx.lineTo(col * cellSize, canvasResolution);
+    ctx.stroke();
+  }
+};

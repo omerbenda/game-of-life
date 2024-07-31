@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { paintGrid } from './Utilities/CanvasUtilities';
+import { paintGrid, paintGridLines } from './Utilities/CanvasUtilities';
 import Vector2D from '../../Types/Vector2D';
 
 const CANVAS_RESOLUTION = 625;
@@ -95,6 +95,7 @@ const GridCanvas = ({
 
       if (ctx) {
         paintGrid(grid, ctx, canvasRef.current.width, CELL_SIZE, position);
+        paintGridLines(ctx, canvasRef.current.width, CELL_SIZE);
       }
     }
   }, [grid, position, canvasRef]);
