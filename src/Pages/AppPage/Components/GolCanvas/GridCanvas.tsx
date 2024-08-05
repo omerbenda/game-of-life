@@ -6,8 +6,8 @@ import {
 } from './Utilities/CanvasUtilities';
 import Vector2D from '../../Types/Vector2D';
 
-const CANVAS_RESOLUTION = 450;
-const DEFAULT_CELL_SIZE = 50;
+const CANVAS_RESOLUTION = 650;
+const DEFAULT_CELL_SIZE = 20;
 const DRAG_BUTTON = 2;
 const ZOOM_PER_WHEEL = 1;
 
@@ -38,6 +38,7 @@ const GridCanvas = ({
     () =>
       (e: MouseEvent): void => {
         if (canvasRef.current) {
+          e.preventDefault();
           const cellSize = DEFAULT_CELL_SIZE * zoom;
 
           const clickX =

@@ -4,7 +4,7 @@ import { changeGridCell, createGrid } from './Utilities/GridUtilities';
 import { createNextGen } from './Utilities/GolUtilities';
 import Vector2D from './Types/Vector2D';
 
-const DEFAULT_GRID_SIZE = 5;
+const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
@@ -73,13 +73,13 @@ const AppPage = () => {
           onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
-          Reset
+          <div className="select-none">Reset</div>
         </button>
         <button
           onClick={() => setPlaying((curr) => !curr)}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
-          {playing ? 'Stop' : 'Play'}
+          <div className="select-none">{playing ? 'Stop' : 'Play'}</div>
         </button>
       </div>
     </div>
