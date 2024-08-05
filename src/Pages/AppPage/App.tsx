@@ -4,7 +4,7 @@ import { changeGridCell, createGrid } from './Utilities/GridUtilities';
 import { createNextGen } from './Utilities/GolUtilities';
 import Vector2D from './Types/Vector2D';
 
-const DEFAULT_GRID_SIZE = 100;
+const DEFAULT_GRID_SIZE = 5;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {

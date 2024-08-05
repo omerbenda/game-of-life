@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { paintGrid, paintGridLines } from './Utilities/CanvasUtilities';
 import Vector2D from '../../Types/Vector2D';
 
-const CANVAS_RESOLUTION = 625;
-const DEFAULT_CELL_SIZE = 15;
+const CANVAS_RESOLUTION = 450;
+const DEFAULT_CELL_SIZE = 50;
 const DRAG_BUTTON = 2;
 const ZOOM_PER_WHEEL = 1;
 
@@ -34,12 +34,23 @@ const GridCanvas = ({
     () =>
       (e: MouseEvent): void => {
         const cellSize = DEFAULT_CELL_SIZE * zoom;
+        const cellsInRes = (canvasRef.current?.width || 0) / cellSize;
+
         const clickX =
           e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
         const clickY =
           e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
-        const xCell = Math.floor(clickX / cellSize) + position.x;
-        const yCell = Math.floor(clickY / cellSize) + position.y;
+
+        const xCell =
+          Math.floor(clickX / cellSize) -
+          Math.floor(cellsInRes / 2 - grid.length / 2) +
+          position.x;
+        const yCell =
+          Math.floor(clickY / cellSize) -
+          Math.floor(cellsInRes / 2 - grid.length / 2) +
+          position.y;
+
+        console.log(xCell, yCell);
 
         if (
           xCell < grid.length &&
