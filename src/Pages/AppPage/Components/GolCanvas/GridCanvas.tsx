@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { paintGrid, paintGridLines } from './Utilities/CanvasUtilities';
+import {
+  getGridCell,
+  paintGrid,
+  paintGridLines,
+} from './Utilities/CanvasUtilities';
 import Vector2D from '../../Types/Vector2D';
 
 const CANVAS_RESOLUTION = 450;
@@ -33,35 +37,33 @@ const GridCanvas = ({
   const onCanvasClicked = useMemo(
     () =>
       (e: MouseEvent): void => {
-        const cellSize = DEFAULT_CELL_SIZE * zoom;
-        const cellsInRes = (canvasRef.current?.width || 0) / cellSize;
+        if (canvasRef.current) {
+          const cellSize = DEFAULT_CELL_SIZE * zoom;
 
-        const clickX =
-          e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
-        const clickY =
-          e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
+          const clickX =
+            e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
+          const clickY =
+            e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
 
-        const xCell =
-          Math.floor(clickX / cellSize) -
-          Math.floor(cellsInRes / 2 - grid.length / 2) +
-          position.x;
-        const yCell =
-          Math.floor(clickY / cellSize) -
-          Math.floor(cellsInRes / 2 - grid.length / 2) +
-          position.y;
+          const gridCell = getGridCell(
+            { x: clickX, y: clickY },
+            canvasRef.current?.width,
+            grid.length,
+            cellSize,
+            position
+          );
 
-        console.log(xCell, yCell);
-
-        if (
-          xCell < grid.length &&
-          xCell >= 0 &&
-          yCell < grid[0]?.length &&
-          yCell >= 0
-        ) {
-          onCellClicked({ x: xCell, y: yCell });
+          if (
+            gridCell.x < grid.length &&
+            gridCell.x >= 0 &&
+            gridCell.y < grid[0]?.length &&
+            gridCell.y >= 0
+          ) {
+            onCellClicked(gridCell);
+          }
         }
       },
-    [grid, position, zoom, onCellClicked]
+    [grid, position, zoom, canvasRef, onCellClicked]
   );
 
   const onMouseDown = useMemo(
