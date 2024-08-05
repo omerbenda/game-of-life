@@ -1,26 +1,39 @@
 import { useEffect, useMemo, useState } from 'react';
 import GridCanvas from './Components/GolCanvas/GridCanvas';
-import {
-  changeGridCell,
-  createGrid,
-} from './Components/GolCanvas/Utilities/GridUtilities';
-import { createNextGen } from './Components/GolCanvas/Utilities/GolUtilities';
+import { changeGridCell, createGrid } from './Utilities/GridUtilities';
+import { createNextGen } from './Utilities/GolUtilities';
+import Vector2D from './Types/Vector2D';
 
-const DEFAULT_GRID_SIZE = 75;
+const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
+  const [position, setPosition] = useState<Vector2D>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState<number>(1);
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(
     () =>
-      (xCell: number, yCell: number): void => {
+      (cellPos: Vector2D): void => {
         setGrid((currGrid) =>
-          changeGridCell(currGrid, xCell, yCell, !grid[yCell][xCell])
+          changeGridCell(
+            currGrid,
+            cellPos.x,
+            cellPos.y,
+            !grid[cellPos.y][cellPos.x]
+          )
         );
       },
     [grid]
+  );
+
+  const onZoom = useMemo(
+    () =>
+      (zoomValue: number): void => {
+        setZoom((currZoom) => Math.max(currZoom - zoomValue, 1));
+      },
+    []
   );
 
   useEffect(() => {
@@ -44,7 +57,14 @@ const AppPage = () => {
       <div className="flex flex-col flex-grow">
         <div className="flex justify-center items-center flex-grow w-full">
           <div className="flex justify-center border-2 border-black bg-gray-600 w-3/4">
-            <GridCanvas grid={grid} onCellClicked={onCellClicked} />
+            <GridCanvas
+              grid={grid}
+              position={position}
+              zoom={zoom}
+              onCellClicked={onCellClicked}
+              onPosDrag={setPosition}
+              onZoom={onZoom}
+            />
           </div>
         </div>
       </div>
@@ -53,13 +73,13 @@ const AppPage = () => {
           onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
-          Reset
+          <div className="select-none">Reset</div>
         </button>
         <button
           onClick={() => setPlaying((curr) => !curr)}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
         >
-          {playing ? 'Stop' : 'Play'}
+          <div className="select-none">{playing ? 'Stop' : 'Play'}</div>
         </button>
       </div>
     </div>

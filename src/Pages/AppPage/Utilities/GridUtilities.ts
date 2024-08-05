@@ -34,22 +34,3 @@ export const changeGridCell = (
 
   return newGrid;
 };
-
-export const paintGrid = (
-  grid: boolean[][],
-  ctx: CanvasRenderingContext2D,
-  canvasResolution: number
-): void => {
-  ctx.fillRect(0, 0, canvasResolution, canvasResolution);
-  const cellSize = canvasResolution / grid.length;
-
-  for (let row = 0; row < grid.length; row++) {
-    for (let col = 0; col < grid[row].length; col++) {
-      const startX = col * cellSize;
-      const startY = row * cellSize;
-
-      ctx.fillStyle = grid[row][col] ? 'white' : 'black';
-      ctx.fillRect(startX, startY, cellSize, cellSize);
-    }
-  }
-};
