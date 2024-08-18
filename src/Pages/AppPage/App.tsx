@@ -6,11 +6,12 @@ import Vector2D from './Types/Vector2D';
 
 const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
+const DEFAULT_ZOOM = 1;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
   const [position, setPosition] = useState<Vector2D>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState<number>(1);
+  const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
   const [playing, setPlaying] = useState<boolean>(false);
 
   const onCellClicked = useMemo(
@@ -81,6 +82,13 @@ const AppPage = () => {
         >
           <div className="select-none">{playing ? 'Stop' : 'Play'}</div>
         </button>
+        <input
+          type="range"
+          value={zoom}
+          min={DEFAULT_ZOOM}
+          max={31}
+          onChange={(e) => setZoom(parseInt(e.target.value))}
+        />
       </div>
     </div>
   );
