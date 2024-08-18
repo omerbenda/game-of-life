@@ -10,10 +10,9 @@ export const paintGrid = (
   ctx.fillStyle = 'rgb(0, 3, 69)';
   ctx.fillRect(0, 0, canvasResolution, canvasResolution);
   const cellsInRes = canvasResolution / cellSize;
-  const halfResCells = Math.floor(cellsInRes / 2);
-  const halfGrid = Math.floor(grid.length / 2);
-  const xPad = halfResCells - halfGrid - position.x;
-  const yPad = halfResCells - halfGrid - position.y;
+  const centerPad = Math.floor(cellsInRes / 2) - Math.floor(grid.length / 2);
+  const xPad = centerPad - position.x;
+  const yPad = centerPad - position.y;
 
   for (let row = 0; row < grid.length; row++) {
     const startY = (row + yPad) * cellSize;
@@ -59,7 +58,7 @@ export const getGridCell = (
   position: Vector2D
 ): Vector2D => {
   const cellsInRes = canvasResolution / cellSize;
-  const halfPad = Math.floor(cellsInRes / 2 - gridLength / 2);
+  const halfPad = Math.floor(cellsInRes / 2) - Math.floor(gridLength / 2);
 
   const xCell = Math.floor(canvasPoint.x / cellSize) - halfPad + position.x;
   const yCell = Math.floor(canvasPoint.y / cellSize) - halfPad + position.y;
