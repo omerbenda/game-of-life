@@ -6,12 +6,18 @@ import Vector2D from './Types/Vector2D';
 
 const DEFAULT_GRID_SIZE = 100;
 const DEFAULT_GENERATION_INTERVAL = 100;
+const MIN_GEN_INTERVAL = 5;
+const DEFAULT_ZOOM = 1;
+const MAX_ZOOM = 31;
 
 const AppPage = () => {
   const [grid, setGrid] = useState<boolean[][]>(createGrid(DEFAULT_GRID_SIZE));
   const [position, setPosition] = useState<Vector2D>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState<number>(1);
+  const [zoom, setZoom] = useState<number>(DEFAULT_ZOOM);
   const [playing, setPlaying] = useState<boolean>(false);
+  const [genInterval, setGenInterval] = useState<number>(
+    DEFAULT_GENERATION_INTERVAL
+  );
 
   const onCellClicked = useMemo(
     () =>
@@ -40,13 +46,13 @@ const AppPage = () => {
     if (playing) {
       const generationTimer = setInterval(() => {
         setGrid(createNextGen);
-      }, DEFAULT_GENERATION_INTERVAL);
+      }, genInterval);
 
       return () => {
         clearInterval(generationTimer);
       };
     }
-  }, [playing]);
+  }, [playing, genInterval]);
 
   return (
     <div className="flex flex-col h-full bg-gray-300">
@@ -68,19 +74,43 @@ const AppPage = () => {
           </div>
         </div>
       </div>
-      <div className="flex justify-center items-center h-32 gap-5">
-        <button
-          onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
-        >
-          <div className="select-none">Reset</div>
-        </button>
-        <button
-          onClick={() => setPlaying((curr) => !curr)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
-        >
-          <div className="select-none">{playing ? 'Stop' : 'Play'}</div>
-        </button>
+      <div className="flex flex-col justify-center items-center h-32 gap-5">
+        <div className="flex gap-5">
+          <div className="flex">
+            <div>Generation Interval: </div>
+            <input
+              type="number"
+              value={genInterval}
+              onChange={(e) => setGenInterval(parseInt(e.target.value))}
+              min={MIN_GEN_INTERVAL}
+              max={10000}
+            />
+          </div>
+          <div className="flex">
+            <div>Zoom: </div>
+            <input
+              type="range"
+              value={zoom}
+              min={DEFAULT_ZOOM}
+              max={MAX_ZOOM}
+              onChange={(e) => setZoom(parseInt(e.target.value))}
+            />
+          </div>
+        </div>
+        <div className="flex gap-5">
+          <button
+            onClick={() => setGrid(createGrid(DEFAULT_GRID_SIZE))}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
+          >
+            <div className="select-none">Reset</div>
+          </button>
+          <button
+            onClick={() => setPlaying((curr) => !curr)}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold rounded py-2 px-4"
+          >
+            <div className="select-none">{playing ? 'Stop' : 'Play'}</div>
+          </button>
+        </div>
       </div>
     </div>
   );
