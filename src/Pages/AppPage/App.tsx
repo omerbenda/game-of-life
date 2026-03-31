@@ -71,7 +71,7 @@ const AppPage = () => {
         <div className="flex flex-wrap justify-center gap-6 w-full max-w-2xl">
           <div className="flex flex-col items-center gap-1">
             <span className="text-xs font-bold uppercase text-gray-600">
-              Interval (ms)
+              Interval ({genInterval}ms)
             </span>
             <input
               type="range"
