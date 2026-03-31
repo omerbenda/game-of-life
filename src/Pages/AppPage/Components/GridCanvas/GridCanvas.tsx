@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import {
   getGridCell,
   paintGrid,
@@ -8,7 +8,6 @@ import Vector2D from '../../Types/Vector2D';
 
 const CANVAS_RESOLUTION = 650;
 const DEFAULT_CELL_SIZE = 20;
-const DRAG_BUTTON = 2;
 const ZOOM_PER_WHEEL = 1;
 
 type GridCanvasProps = {
@@ -30,153 +29,151 @@ const GridCanvas = ({
 }: GridCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDragging = useRef<boolean>(false);
-  const dragStart = useRef<Vector2D>({ x: 0, y: 0 });
+  const lastInteractionPos = useRef<Vector2D>({ x: 0, y: 0 });
 
-  //#region Mouse Events
+  const getNormalizedCanvasPoint = (
+    clientX: number,
+    clientY: number,
+  ): Vector2D => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
 
-  const onCanvasClicked = useMemo(
-    () =>
-      (e: MouseEvent): void => {
-        if (canvasRef.current) {
-          e.preventDefault();
-          const cellSize = DEFAULT_CELL_SIZE * zoom;
+    const scaleX = CANVAS_RESOLUTION / rect.width;
+    const scaleY = CANVAS_RESOLUTION / rect.height;
 
-          const clickX =
-            e.pageX - ((e.target as HTMLCanvasElement).offsetLeft || 0);
-          const clickY =
-            e.pageY - ((e.target as HTMLCanvasElement).offsetTop || 0);
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
+    };
+  };
 
-          const gridCell = getGridCell(
-            { x: clickX, y: clickY },
-            canvasRef.current?.width,
-            grid.length,
-            cellSize,
-            position,
-          );
-
-          if (
-            gridCell.x < grid.length &&
-            gridCell.x >= 0 &&
-            gridCell.y < grid[0]?.length &&
-            gridCell.y >= 0
-          ) {
-            onCellClicked(gridCell);
-          }
-        }
-      },
-    [grid, position, zoom, canvasRef, onCellClicked],
-  );
-
-  const onMouseDown = useMemo(
-    () =>
-      (e: MouseEvent): void => {
-        const cellSize = DEFAULT_CELL_SIZE * zoom;
-
-        if (e.button === DRAG_BUTTON && canvasRef.current) {
-          dragStart.current = {
-            x: e.clientX - canvasRef.current.offsetLeft + position.x * cellSize,
-            y: e.clientY - canvasRef.current.offsetTop + position.y * cellSize,
-          };
-
-          isDragging.current = true;
-        }
-      },
-    [position, zoom],
-  );
-
-  const onMouseMove = useMemo(
-    () =>
-      (e: MouseEvent): void => {
-        const cellSize = DEFAULT_CELL_SIZE * zoom;
-
-        if (isDragging.current && canvasRef.current) {
-          const xCanvas = e.clientX - canvasRef.current.offsetLeft;
-          const yCanvas = e.clientY - canvasRef.current.offsetTop;
-          const xDiff = (dragStart.current.x - xCanvas) / cellSize;
-          const yDiff = (dragStart.current.y - yCanvas) / cellSize;
-
-          onPosDrag({
-            x: Math.floor(xDiff),
-            y: Math.floor(yDiff),
-          });
-        }
-      },
-    [zoom, onPosDrag],
-  );
-
-  const onMouseUp = useMemo(
-    () =>
-      (e: MouseEvent): void => {
-        if (e.button === DRAG_BUTTON) {
-          isDragging.current = false;
-        }
-      },
-    [],
-  );
-
-  const onWheel = useMemo(
-    () =>
-      (e: WheelEvent): void => {
-        e.preventDefault();
-
-        if (e.deltaY > 0) {
-          onZoom(ZOOM_PER_WHEEL);
-        } else if (e.deltaY < 0) {
-          onZoom(-ZOOM_PER_WHEEL);
-        }
-      },
-    [onZoom],
-  );
-
-  //#endregion
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      const ctx = canvasRef.current.getContext('2d');
-
-      if (ctx) {
-        paintGrid(
-          grid,
-          ctx,
-          canvasRef.current.width,
-          DEFAULT_CELL_SIZE * zoom,
-          position,
-        );
-        paintGridLines(ctx, canvasRef.current.width, DEFAULT_CELL_SIZE * zoom);
-      }
+  const handlePointerDown = (
+    clientX: number,
+    clientY: number,
+    button?: number,
+  ) => {
+    if (button === 2 || button === undefined) {
+      isDragging.current = true;
+      lastInteractionPos.current = { x: clientX, y: clientY };
     }
-  }, [grid, position, zoom, canvasRef]);
+  };
+
+  const handlePointerMove = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!isDragging.current) return;
+
+      const cellSize = DEFAULT_CELL_SIZE * zoom;
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const dx =
+        (lastInteractionPos.current.x - clientX) *
+        (CANVAS_RESOLUTION / rect.width);
+      const dy =
+        (lastInteractionPos.current.y - clientY) *
+        (CANVAS_RESOLUTION / rect.height);
+
+      if (Math.abs(dx) > cellSize / 2 || Math.abs(dy) > cellSize / 2) {
+        onPosDrag({
+          x: position.x + Math.round(dx / cellSize),
+          y: position.y + Math.round(dy / cellSize),
+        });
+        lastInteractionPos.current = { x: clientX, y: clientY };
+      }
+    },
+    [onPosDrag, position, zoom],
+  );
+
+  const handleClick = (clientX: number, clientY: number) => {
+    const canvasPoint = getNormalizedCanvasPoint(clientX, clientY);
+    const cellSize = DEFAULT_CELL_SIZE * zoom;
+
+    const gridCell = getGridCell(
+      canvasPoint,
+      CANVAS_RESOLUTION,
+      grid.length,
+      cellSize,
+      position,
+    );
+
+    if (
+      gridCell.x >= 0 &&
+      gridCell.x < grid.length &&
+      gridCell.y >= 0 &&
+      gridCell.y < grid[0]?.length
+    ) {
+      onCellClicked(gridCell);
+    }
+  };
 
   useEffect(() => {
-    const currRef = canvasRef.current;
-    currRef?.addEventListener('click', onCanvasClicked);
-    currRef?.addEventListener('mousedown', onMouseDown);
-    currRef?.addEventListener('mousemove', onMouseMove);
-    currRef?.addEventListener('mouseup', onMouseUp);
-    currRef?.addEventListener('wheel', onWheel);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onMouseDown = (e: MouseEvent) =>
+      handlePointerDown(e.clientX, e.clientY, e.button);
+    const onMouseMove = (e: MouseEvent) =>
+      handlePointerMove(e.clientX, e.clientY);
+    const onMouseUp = () => {
+      isDragging.current = false;
+    };
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      onZoom(e.deltaY > 0 ? ZOOM_PER_WHEEL : -ZOOM_PER_WHEEL);
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      handlePointerDown(touch.clientX, touch.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handlePointerMove(touch.clientX, touch.clientY);
+    };
+
+    canvas.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+    canvas.addEventListener('touchstart', onTouchStart);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onMouseUp);
 
     return () => {
-      currRef?.removeEventListener('click', onCanvasClicked);
-      currRef?.removeEventListener('mousedown', onMouseDown);
-      currRef?.removeEventListener('mousemove', onMouseMove);
-      currRef?.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onMouseUp);
     };
-  }, [
-    canvasRef,
-    onCanvasClicked,
-    onMouseDown,
-    onMouseMove,
-    onMouseUp,
-    onWheel,
-  ]);
+  }, [position, zoom, grid, handlePointerMove, onZoom]);
+
+  useEffect(() => {
+    const ctx = canvasRef.current?.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, CANVAS_RESOLUTION, CANVAS_RESOLUTION);
+      paintGrid(
+        grid,
+        ctx,
+        CANVAS_RESOLUTION,
+        DEFAULT_CELL_SIZE * zoom,
+        position,
+      );
+      paintGridLines(ctx, CANVAS_RESOLUTION, DEFAULT_CELL_SIZE * zoom);
+    }
+  }, [grid, position, zoom]);
 
   return (
     <canvas
       ref={canvasRef}
       width={CANVAS_RESOLUTION}
       height={CANVAS_RESOLUTION}
+      onClick={(e) => handleClick(e.clientX, e.clientY)}
       onContextMenu={(e) => e.preventDefault()}
-      className="[image-rendering:pixelated] aspect-square"
+      className="w-full h-full [image-rendering:pixelated] touch-none"
     />
   );
 };
