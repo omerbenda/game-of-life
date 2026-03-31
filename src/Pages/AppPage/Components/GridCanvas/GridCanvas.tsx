@@ -11,7 +11,7 @@ const DEFAULT_CELL_SIZE = 20;
 const DRAG_BUTTON = 2;
 const ZOOM_PER_WHEEL = 1;
 
-type GolCanvasProps = {
+type GridCanvasProps = {
   grid: boolean[][];
   position: Vector2D;
   zoom: number;
@@ -27,7 +27,7 @@ const GridCanvas = ({
   onCellClicked,
   onPosDrag,
   onZoom,
-}: GolCanvasProps) => {
+}: GridCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDragging = useRef<boolean>(false);
   const dragStart = useRef<Vector2D>({ x: 0, y: 0 });
@@ -51,7 +51,7 @@ const GridCanvas = ({
             canvasRef.current?.width,
             grid.length,
             cellSize,
-            position
+            position,
           );
 
           if (
@@ -64,7 +64,7 @@ const GridCanvas = ({
           }
         }
       },
-    [grid, position, zoom, canvasRef, onCellClicked]
+    [grid, position, zoom, canvasRef, onCellClicked],
   );
 
   const onMouseDown = useMemo(
@@ -81,7 +81,7 @@ const GridCanvas = ({
           isDragging.current = true;
         }
       },
-    [position, zoom]
+    [position, zoom],
   );
 
   const onMouseMove = useMemo(
@@ -101,7 +101,7 @@ const GridCanvas = ({
           });
         }
       },
-    [zoom, onPosDrag]
+    [zoom, onPosDrag],
   );
 
   const onMouseUp = useMemo(
@@ -111,7 +111,7 @@ const GridCanvas = ({
           isDragging.current = false;
         }
       },
-    []
+    [],
   );
 
   const onWheel = useMemo(
@@ -125,7 +125,7 @@ const GridCanvas = ({
           onZoom(-ZOOM_PER_WHEEL);
         }
       },
-    [onZoom]
+    [onZoom],
   );
 
   //#endregion
@@ -140,7 +140,7 @@ const GridCanvas = ({
           ctx,
           canvasRef.current.width,
           DEFAULT_CELL_SIZE * zoom,
-          position
+          position,
         );
         paintGridLines(ctx, canvasRef.current.width, DEFAULT_CELL_SIZE * zoom);
       }

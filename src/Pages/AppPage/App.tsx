@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import GridCanvas from './Components/GolCanvas/GridCanvas';
+import GridCanvas from './Components/GridCanvas/GridCanvas';
 import { changeGridCell, createGrid } from './Utilities/GridUtilities';
 import { createNextGen } from './Utilities/GolUtilities';
 import Vector2D from './Types/Vector2D';
